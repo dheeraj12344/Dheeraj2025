@@ -1,15 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dherraj2025</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tic Tac Toe – Single HTML File</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #121824;
+      --muted: #9aa3b2;
+      --bright: #e6edf6;
+      --primary: #6aa6ff;
+      --accent: #4ef2c2;
+      --danger: #ff6b6b;
+      --win: #1fd98b33;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% -10%, #12233a 0%, transparent 60%),
+                  radial-gradient(1200px 600px at 110% 10%, #222 0%, transparent 60%),
+                  var(--bg);
+      color: var(--bright);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .title h1 {
+      font-size: clamp(20px, 4vw, 28px);
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .title .badge {
+      font-size: 12px;
+      color: var(--muted);
+      background: #ffffff12;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #ffffff1a;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    select, button {
+      appearance: none;
+      border: 1px solid #ffffff1a;
+      background: #101626;
+      color: var(--bright);
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+    }
+    select:focus, button:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+    button:hover { background: #141c2e; }
+    button:active { transform: translateY(1px); }
+
+    .board-card {
+      background: linear-gradient(180deg, #121824, #0e1422);
+      border: 1px solid #ffffff14;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .statusbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+    .status small { color: var(--muted); font-weight: 500; }
+
+    .grid {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #0c1220;
+      border: 1px solid #ffffff10;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(28px, 8vw, 68px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      user-select: none;
+      cursor: pointer;
+      transition: background .2s ease, transform .08s ease;
+    }
+    .cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .cell:hover { background: #111a30; }
+    .cell:active { transform: scale(.99); }
+    .cell[disabled] { opacity: .8; cursor: not-allowed; }
+
+    .cell.x { color: var(--primary); text-shadow: 0 6px 24px #6aa6ff44; }
+    .cell.o { color: var(--accent); text-shadow: 0 6px 24px #4ef2c244; }
+    .cell.win { background: var(--win); border-color: #25dba35a; }
+
+    .footer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: #0c1220;
+      border: 1px solid #ffffff12;
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat .label { color: var(--muted); font-size: 12px; }
+    .stat .value { font-size: 18px; font-weight: 700; margin-top: 6px; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    @media (max-width: 520px) {
+      .statusbar { grid-template-columns: 1fr; }
+      .footer { grid-template-columns: 1fr 1fr 1fr; }
+      .controls { width: 100%; }
+    }
+  </style>
 </head>
-
 <body>
-    <p>This is Dheeraj</p>
+  <main class="app" role="application" aria-label="Tic Tac Toe game">
+    <div class="header">
+      <div class="title">
+        <h1>🎮 Tic Tac Toe</h1>
+        <span class="badge">Single file • Offline</span>
+      </div>
+      <div class="controls">
+        <label class="sr-only" for="mode">Game Mode</label>
+        <select id="mode" title="Game Mode" aria-label="Select game mode">
+          <option value="pvp">Vs Friend (2 Players)</option>
+          <option value="ai">Vs Computer (Unbeatable)</option>
+        </select>
+        <button id="reset" title="Reset game (R)">↻ Reset</button>
+      </div>
+    </div>
 
+    <section class="board-card">
+      <div class="statusbar">
+        <div class="status" id="status" aria-live="polite">Player <span id="turnMark">X</span>'s turn</div>
+        <div><small id="hint">Tip: press R to reset</small></div>
+      </div>
+
+      <div class="grid" id="grid" role="grid" aria-label="Tic Tac Toe board">
+        <!-- 9 cells -->
+        <button class="cell" role="gridcell" aria-label="Cell 1" data-index="0"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 2" data-index="1"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 3" data-index="2"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 4" data-index="3"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 5" data-index="4"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 6" data-index="5"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 7" data-index="6"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 8" data-index="7"></button>
+        <button class="cell" role="gridcell" aria-label="Cell 9" data-index="8"></button>
+      </div>
+
+      <div class="footer">
+        <div class="stat"><div class="label">X Wins</div><div class="value" id="xWins">0</div></div>
+        <div class="stat"><div class="label">Draws</div><div class="value" id="draws">0</div></div>
+        <div class="stat"><div class="label">O Wins</div><div class="value" id="oWins">0</div></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function() {
+      const grid = document.getElementById('grid');
+      const cells = Array.from(grid.querySelectorAll('.cell'));
+      const statusEl = document.getElementById('status');
+      const turnMarkEl = document.getElementById('turnMark');
+      const resetBtn = document.getElementById('reset');
+      const modeSel = document.getElementById('mode');
+      const xWinsEl = document.getElementById('xWins');
+      const oWinsEl = document.getElementById('oWins');
+      const drawsEl = document.getElementById('draws');
+
+      const WIN_LINES = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+
+      let board, current, over, scores;
+
+      function init(keepScores = true) {
+        board = Array(9).fill(null);
+        current = 'X';
+        over = false;
+        if (!keepScores) scores = { X:0, O:0, D:0 };
+        updateScoresUI();
+        cells.forEach(c => {
+          c.textContent = '';
+          c.className = 'cell';
+          c.disabled = false;
+        });
+        setStatus(`Player <span id="turnMark">${current}</span>'s turn`);
+        if (modeSel.value === 'ai' && current === 'O') aiMove();
+      }
+
+      function setStatus(html) { statusEl.innerHTML = html; }
+
+      function updateScoresUI() {
+        if (!scores) scores = { X:0, O:0, D:0 };
+        xWinsEl.textContent = scores.X;
+        oWinsEl.textContent = scores.O;
+        drawsEl.textContent = scores.D;
+      }
+
+      function availableMoves(b = board) { return b.map((v,i)=>v?null:i).filter(v=>v!==null); }
+
+      function checkWin(b = board) {
+        for (const [a,b1,c] of WIN_LINES) {
+          if (b[a] && b[a] === b[b1] && b[a] === b[c]) return { mark: b[a], line: [a,b1,c] };
+        }
+        return null;
+      }
+
+      function checkDraw(b = board) { return !checkWin(b) && b.every(Boolean); }
+
+      function place(idx) {
+        if (over || board[idx]) return;
+        board[idx] = current;
+        renderCell(idx);
+        const win = checkWin();
+        if (win) return endGame(win.mark, win.line);
+        if (checkDraw()) return endGame('D');
+        toggleTurn();
+        if (modeSel.value === 'ai' && current === 'O') {
+          // Let the DOM paint, then AI moves
+          setTimeout(aiMove, 120);
+        }
+      }
+
+      function renderCell(idx) {
+        const cell = cells[idx];
+        cell.textContent = board[idx];
+        cell.classList.toggle('x', board[idx] === 'X');
+        cell.classList.toggle('o', board[idx] === 'O');
+      }
+
+      function toggleTurn() {
+        current = current === 'X' ? 'O' : 'X';
+        setStatus(`Player <span id="turnMark">${current}</span>'s turn`);
+      }
+
+      function endGame(winner, line) {
+        over = true;
+        if (winner === 'D') {
+          setStatus('It\'s a draw!');
+          scores.D++;
+        } else {
+          setStatus(`${winner} wins!`);
+          scores[winner]++;
+          if (line) line.forEach(i => cells[i].classList.add('win'));
+        }
+        cells.forEach(c => c.disabled = true);
+        updateScoresUI();
+      }
+
+      // Unbeatable AI (minimax with pruning)
+      function aiMove() {
+        if (over) return;
+        const idx = bestMove(board, 'O');
+        place(idx);
+      }
+
+      function bestMove(b, aiMark) {
+        const human = aiMark === 'X' ? 'O' : 'X';
+        let bestScore = -Infinity, move = null;
+        for (const i of availableMoves(b)) {
+          b[i] = aiMark;
+          const score = minimax(b, 0, false, aiMark, human, -Infinity, Infinity);
+          b[i] = null;
+          if (score > bestScore) { bestScore = score; move = i; }
+        }
+        return move ?? availableMoves(b)[0];
+      }
+
+      function minimax(b, depth, isMax, aiMark, human, alpha, beta) {
+        const win = checkWin(b);
+        if (win) return win.mark === aiMark ? 10 - depth : depth - 10;
+        if (checkDraw(b)) return 0;
+
+        if (isMax) {
+          let best = -Infinity;
+          for (const i of availableMoves(b)) {
+            b[i] = aiMark;
+            const val = minimax(b, depth+1, false, aiMark, human, alpha, beta);
+            b[i] = null;
+            best = Math.max(best, val);
+            alpha = Math.max(alpha, val);
+            if (beta <= alpha) break; // prune
+          }
+          return best;
+        } else {
+          let best = Infinity;
+          for (const i of availableMoves(b)) {
+            b[i] = human;
+            const val = minimax(b, depth+1, true, aiMark, human, alpha, beta);
+            b[i] = null;
+            best = Math.min(best, val);
+            beta = Math.min(beta, val);
+            if (beta <= alpha) break; // prune
+          }
+          return best;
+        }
+      }
+
+      // Events
+      grid.addEventListener('click', (e) => {
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        const idx = Number(cell.dataset.index);
+        place(idx);
+      });
+
+      // Keyboard support: 1-9 to place, R to reset
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'r' || e.key === 'R') { init(true); }
+        const num = Number(e.key);
+        if (num >= 1 && num <= 9) {
+          const idx = num - 1;
+          if (!cells[idx].disabled) place(idx);
+        }
+      });
+
+      resetBtn.addEventListener('click', () => init(true));
+      modeSel.addEventListener('change', () => init(true));
+
+      // Boot
+      init(false);
+    })();
+  </script>
 </body>
-
 </html>
